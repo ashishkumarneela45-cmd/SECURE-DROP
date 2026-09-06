@@ -1,0 +1,11 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // No direct client access - uploads/downloads only happen through
+    // the Cloud Function (using the Admin SDK). This prevents anyone
+    // from reading or writing files directly via a browser URL.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
