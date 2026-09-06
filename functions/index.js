@@ -41,16 +41,17 @@ const upload = multer({
 });
 
 // ── Routes ────────────────────────────────────────────────────────────────────
-// Note: routes here are NOT prefixed with /api - that prefix is added by the
-// Firebase Hosting rewrite rule (see firebase.json), which routes
-// yoursite.com/api/** to this function.
+// Note: routes here ARE prefixed with /api. Firebase Hosting forwards the
+// FULL matched path to the function (it does not strip the /api prefix),
+// so these routes must include it to match what the frontend calls
+// (e.g. fetch('/api/upload')).
 
 /**
- * POST /upload
+ * POST /api/upload
  * Same contract as before: encryptedFile (multipart) + expirySeconds +
  * maxDownloads + burnAfterRead + encryptedMeta. Returns { id }.
  */
-app.post('/upload', upload.single('encryptedFile'), async (req, res) => {
+app.post('/api/upload', upload.single('encryptedFile'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file received.' });
@@ -101,7 +102,7 @@ app.post('/upload', upload.single('encryptedFile'), async (req, res) => {
  * GET /file/:id/meta
  * Returns encrypted metadata + link status, same as before.
  */
-app.get('/file/:id/meta', async (req, res) => {
+app.get('/api/file/:id/meta', async (req, res) => {
   const { id } = req.params;
   const docRef = db.collection(FILES_COLLECTION).doc(id);
 
@@ -143,7 +144,7 @@ app.get('/file/:id/meta', async (req, res) => {
  * Tracks failed password attempts, same 5-strike lockout as before.
  * Failed-attempt count now lives in Firestore instead of the in-memory entry.
  */
-app.post('/file/:id/attempt', async (req, res) => {
+app.post('/api/file/:id/attempt', async (req, res) => {
   const { id } = req.params;
   const docRef = db.collection(FILES_COLLECTION).doc(id);
 
@@ -176,7 +177,7 @@ app.post('/file/:id/attempt', async (req, res) => {
  * Streams the encrypted blob from Firebase Storage, same expiry/limit checks,
  * increments the counter before streaming to avoid race conditions.
  */
-app.get('/file/:id', async (req, res) => {
+app.get('/api/file/:id', async (req, res) => {
   const { id } = req.params;
   const docRef = db.collection(FILES_COLLECTION).doc(id);
 
