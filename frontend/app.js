@@ -16,7 +16,7 @@
  *     - Trigger a browser download of the plaintext file
  */
 
-const API_BASE = ''; // same origin — backend serves frontend
+const API_BASE = 'https://secure-drop-backend.onrender.com'; // backend hosted on Render
 
 // ── Utility helpers ───────────────────────────────────────────────────────────
 
